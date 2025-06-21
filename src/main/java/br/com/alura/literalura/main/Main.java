@@ -7,9 +7,7 @@ import br.com.alura.literalura.repository.SerieRepository;
 import br.com.alura.literalura.service.ConsumoAPI;
 import br.com.alura.literalura.service.ConverteDados;
 
-import java.util.InputMismatchException;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private Scanner scanner = new Scanner(System.in);
@@ -77,12 +75,20 @@ public class Main {
     }
 
     private void listarLivrosArmazenados() {
+        List<Livro> livrosArmazenados = repository.findAll();
+        livrosArmazenados.forEach(System.out::println);
     }
 
     private DadosLivro getDadosLivro(String nomeLivro) {
-        json = consumoAPI.obterDados(ENDERECO + "search=" + nomeLivro.replace(" ", "+"));
-        DadosBuscados dadosBuscados = conversor.obterDados(json, DadosBuscados.class);
-        DadosLivro dadosLivro = dadosBuscados.livrosBuscados().getFirst();
-        return dadosLivro;
+        try {
+            json = consumoAPI.obterDados(ENDERECO + "search=" + nomeLivro.replace(" ", "+"));
+            DadosBuscados dadosBuscados = conversor.obterDados(json, DadosBuscados.class);
+            DadosLivro dadosLivro = dadosBuscados.livrosBuscados().getFirst();
+            return dadosLivro;
+        } catch (NoSuchElementException e) {
+            System.out.println("Livro não encontrado.");
+            exibeMenu();
+            return null;
+        }
     }
 }
