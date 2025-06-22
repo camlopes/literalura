@@ -10,17 +10,20 @@ public class Livro {
     private Long id;
     @Column(unique = true)
     private String titulo;
-    private String autor;
     private String idioma;
     private Integer numeroDownloads;
+    private String autorNome;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Autor autor;
 
     public Livro() {}
 
-    public Livro(DadosLivro dadosLivro) {
+    public Livro(DadosLivro dadosLivro, Autor autor) {
         this.titulo = dadosLivro.titulo();
-        this.autor = dadosLivro.autores().getFirst().nome();
         this.idioma = dadosLivro.idioma().getFirst();
         this.numeroDownloads = dadosLivro.numeroDownloads();
+        this.autorNome = autor.getNome();
+        this.autor = autor;
     }
 
     public Long getId() {
@@ -39,14 +42,6 @@ public class Livro {
         this.titulo = titulo;
     }
 
-    public String getAutor() {
-        return autor;
-    }
-
-    public void setAutor(String autor) {
-        this.autor = autor;
-    }
-
     public String getIdioma() {
         return idioma;
     }
@@ -63,11 +58,27 @@ public class Livro {
         this.numeroDownloads = numeroDownloads;
     }
 
+    public String getAutorNome() {
+        return autorNome;
+    }
+
+    public void setAutorNome(String autorNome) {
+        this.autorNome = autorNome;
+    }
+
+    public Autor getAutor() {
+        return autor;
+    }
+
+    public void setAutor(Autor autor) {
+        this.autor = autor;
+    }
+
     @Override
     public String toString() {
         return  "==============Livro==============" +
                 "\nTitulo: " + titulo +
-                "\nAutor: " + autor +
+                "\nAutor: " + autorNome +
                 "\nIdioma: " + idioma +
                 "\nNúmero de downloads: " + numeroDownloads +
                 "\n" +

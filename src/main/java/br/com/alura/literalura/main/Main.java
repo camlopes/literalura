@@ -1,5 +1,6 @@
 package br.com.alura.literalura.main;
 
+import br.com.alura.literalura.model.Autor;
 import br.com.alura.literalura.model.DadosBuscados;
 import br.com.alura.literalura.model.DadosLivro;
 import br.com.alura.literalura.model.Livro;
@@ -50,6 +51,9 @@ public class Main {
                 case 2:
                     listarLivrosArmazenados();
                     break;
+                case 3:
+                    listarAutoresArmazenados();
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     break;
@@ -68,7 +72,8 @@ public class Main {
             System.out.println(livroEncontrado.get());
         } else {
             DadosLivro dadosLivro = getDadosLivro(nomeLivro);
-            Livro livro = new Livro(dadosLivro);
+            Autor autor = new Autor(dadosLivro.autores().getFirst());
+            Livro livro = new Livro(dadosLivro, autor);
             System.out.println(livro);
             repository.save(livro);
         }
@@ -77,6 +82,9 @@ public class Main {
     private void listarLivrosArmazenados() {
         List<Livro> livrosArmazenados = repository.findAll();
         livrosArmazenados.forEach(System.out::println);
+    }
+
+    private void listarAutoresArmazenados() {
     }
 
     private DadosLivro getDadosLivro(String nomeLivro) {
