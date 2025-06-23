@@ -62,17 +62,15 @@ public class Autor {
     }
 
     public void setLivros(List<Livro> livros) {
-        livros.forEach(l -> l.setAutor(this));
         this.livros = livros;
     }
 
     @Override
     public String toString() {
-        return "Autor{" +
-                "nome='" + nome + '\'' +
-                ", anoNascimento=" + anoNascimento +
-                ", anoFalecimento=" + anoFalecimento +
-                ", livros=" + livros +
-                '}';
+        List<String> titulos = livros.stream().map(l -> l.getTitulo()).toList();
+        return  "\nAutor: " + nome +
+                "\nAno de Nascimento: " + anoNascimento +
+                "\nAno de Falecimento: " + anoFalecimento +
+                "\nLivros: " + titulos;
     }
 }

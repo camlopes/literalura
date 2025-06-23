@@ -1,10 +1,8 @@
 package br.com.alura.literalura.main;
 
-import br.com.alura.literalura.model.Autor;
-import br.com.alura.literalura.model.DadosBuscados;
-import br.com.alura.literalura.model.DadosLivro;
-import br.com.alura.literalura.model.Livro;
-import br.com.alura.literalura.repository.SerieRepository;
+import br.com.alura.literalura.model.*;
+import br.com.alura.literalura.repository.AutorRepository;
+import br.com.alura.literalura.repository.LivroRepository;
 import br.com.alura.literalura.service.ConsumoAPI;
 import br.com.alura.literalura.service.ConverteDados;
 
@@ -16,14 +14,16 @@ public class Main {
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private ConverteDados conversor = new ConverteDados();
     private String json;
-    private SerieRepository repository;
+    private LivroRepository livroRepository;
+    private AutorRepository autorRepository;
 
-    public Main(SerieRepository repository) {
-        this.repository = repository;
+    public Main(LivroRepository livroRepository, AutorRepository autorRepository) {
+        this.livroRepository = livroRepository;
+        this.autorRepository = autorRepository;
     }
 
     public void exibeMenu() {
-        var opcao = -1;
+        int opcao = -1;
         while (opcao != 0) {
             var menu = """
                     1 - Buscar livro pelo título
@@ -35,14 +35,10 @@ public class Main {
                     0 - Sair
                     """;
 
-            try {
                 System.out.println(menu);
                 System.out.print("Escolha uma das opçoes acima: ");
                 opcao = scanner.nextInt();
                 scanner.nextLine();
-            } catch (InputMismatchException e) {
-                scanner.nextLine();
-            }
 
             switch (opcao) {
                 case 1:
@@ -66,25 +62,35 @@ public class Main {
     private void buscarLivroPeloTitulo() {
         System.out.print("Insira o titulo do livro que você deseja buscar: ");
         var nomeLivro = scanner.nextLine();
-        Optional<Livro> livroEncontrado = repository.findByTituloContainingIgnoreCase(nomeLivro);
+        Optional<Livro> livroEncontrado = livroRepository.findByTituloContainingIgnoreCase(nomeLivro);
+        DadosLivro dadosLivro = getDadosLivro(nomeLivro);
+        DadosAutor dadosAutor = dadosLivro.autores().getFirst();
+        Optional<Autor> autorEncontrado = autorRepository.findByNome(dadosAutor.nome());
+        Livro livro;
 
         if (livroEncontrado.isPresent()) {
             System.out.println(livroEncontrado.get());
-        } else {
-            DadosLivro dadosLivro = getDadosLivro(nomeLivro);
-            Autor autor = new Autor(dadosLivro.autores().getFirst());
-            Livro livro = new Livro(dadosLivro, autor);
+        } else if (autorEncontrado.isPresent()) {
+            livro = new Livro(dadosLivro, autorEncontrado.get());
             System.out.println(livro);
-            repository.save(livro);
+            livroRepository.save(livro);
+        } else {
+            Autor novoAutor = new Autor(dadosAutor);
+            livro = new Livro(dadosLivro, novoAutor);
+            autorRepository.save(novoAutor);
+            System.out.println(livro);
+            livroRepository.save(livro);
         }
     }
 
     private void listarLivrosArmazenados() {
-        List<Livro> livrosArmazenados = repository.findAll();
+        List<Livro> livrosArmazenados = livroRepository.findAll();
         livrosArmazenados.forEach(System.out::println);
     }
 
     private void listarAutoresArmazenados() {
+        List<Autor> autoresArmazenados = autorRepository.findAll();
+        autoresArmazenados.forEach(System.out::println);
     }
 
     private DadosLivro getDadosLivro(String nomeLivro) {
