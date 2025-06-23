@@ -50,6 +50,9 @@ public class Main {
                 case 3:
                     listarAutoresArmazenados();
                     break;
+                case 4:
+                    listarAutoresPorAno();
+                    break;
                 case 5:
                     listarLivrosPorIdioma();
                     break;
@@ -126,6 +129,19 @@ public class Main {
             System.out.println("Não existem livros nesse idioma no Banco de Dados.\n");
         } else {
             livrosPorIdioma.forEach(System.out::println);
+        }
+    }
+
+    private void listarAutoresPorAno() {
+        System.out.print("Insira o ano que deseja pesquisar: ");
+        Integer ano = scanner.nextInt();
+        scanner.nextLine();
+
+        List<Autor> autoresVivos = autorRepository.findByAnoNascimentoLessThanEqualAndAnoFalecimentoGreaterThanEqual(ano, ano);
+        if (autoresVivos.isEmpty()) {
+            System.out.println("Autores nao encontrados para o ano buscado.");
+        } else {
+            autoresVivos.forEach(System.out::println);
         }
     }
 }
