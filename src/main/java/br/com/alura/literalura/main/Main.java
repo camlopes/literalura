@@ -50,12 +50,28 @@ public class Main {
                 case 3:
                     listarAutoresArmazenados();
                     break;
+                case 5:
+                    listarLivrosPorIdioma();
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     break;
                 default:
                     System.out.println("Opção inválida. Escolha somente uma das opçoes abaixo.\n");
             }
+        }
+    }
+
+    private DadosLivro getDadosLivro(String nomeLivro) {
+        try {
+            json = consumoAPI.obterDados(ENDERECO + "search=" + nomeLivro.replace(" ", "+"));
+            DadosBuscados dadosBuscados = conversor.obterDados(json, DadosBuscados.class);
+            DadosLivro dadosLivro = dadosBuscados.livrosBuscados().getFirst();
+            return dadosLivro;
+        } catch (NoSuchElementException e) {
+            System.out.println("Livro não encontrado.");
+            exibeMenu();
+            return null;
         }
     }
 
@@ -93,16 +109,23 @@ public class Main {
         autoresArmazenados.forEach(System.out::println);
     }
 
-    private DadosLivro getDadosLivro(String nomeLivro) {
-        try {
-            json = consumoAPI.obterDados(ENDERECO + "search=" + nomeLivro.replace(" ", "+"));
-            DadosBuscados dadosBuscados = conversor.obterDados(json, DadosBuscados.class);
-            DadosLivro dadosLivro = dadosBuscados.livrosBuscados().getFirst();
-            return dadosLivro;
-        } catch (NoSuchElementException e) {
-            System.out.println("Livro não encontrado.");
-            exibeMenu();
-            return null;
+    private void listarLivrosPorIdioma() {
+        var menuIdiomas = """
+                es - espanhol
+                en - ingles
+                fr - frances
+                pt - portugues
+                
+                """;
+        System.out.println(menuIdiomas);
+        System.out.print("Escolha um dos idiomas acima para realizar a busca: ");
+        String idioma = scanner.nextLine();
+
+        List<Livro> livrosPorIdioma = livroRepository.findByIdiomaContainingIgnoreCase(idioma);
+        if (livrosPorIdioma.isEmpty()) {
+            System.out.println("Não existem livros nesse idioma no Banco de Dados.\n");
+        } else {
+            livrosPorIdioma.forEach(System.out::println);
         }
     }
 }
